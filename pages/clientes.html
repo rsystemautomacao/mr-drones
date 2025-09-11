@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - MR Drones</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <button id="menu-toggle" class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Clientes</h1>
+                <button onclick="logout()" class="menu-toggle">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <nav id="main-nav" class="nav-closed">
+                <!-- O menu será preenchido pelo menu.js -->
+            </nav>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="barra-pesquisa">
+                    <input type="text" 
+                           id="pesquisaCliente" 
+                           placeholder="Pesquisar por nome ou telefone..."
+                           onkeyup="filtrarClientes()">
+                </div>
+
+                <button id="novo-cliente" class="btn-primary">
+                    <i class="fas fa-plus"></i> Novo Cliente
+                </button>
+                
+                <div class="lista-clientes" id="lista-clientes">
+                    <!-- Será preenchido via JavaScript -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2025 RSystem. Todos os direitos reservados.</p>
+        </footer>
+
+        <!-- Modal de Cadastro/Edição -->
+        <div id="modal-cliente" class="modal">
+            <div class="modal-content">
+                <h2>Cadastrar Cliente</h2>
+                <form id="form-cliente">
+                    <div class="form-group">
+                        <label for="nome">Nome *</label>
+                        <input type="text" id="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone">Telefone *</label>
+                        <input type="text" id="telefone" onkeyup="mascaraTelefone(this)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localizacao">Endereço *</label>
+                        <input type="text" id="localizacao" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tamanhoTerra">Tamanho da Terra (hectares)</label>
+                        <input type="number" id="tamanhoTerra" step="0.01">
+                    </div>
+                    <small>* Campos obrigatórios</small>
+                    <div class="form-buttons">
+                        <button type="button" onclick="salvarCliente()" class="btn-primary">Salvar</button>
+                        <button type="button" class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts no final do body -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/clientes.js"></script>
+    <script src="../js/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MR Drones</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2ecc71">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MR Drones">
+    
+    <!-- Links para ícones -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    
+    <!-- Configuração e Database -->
+    <script src="/js/config.js" defer></script>
+    <script src="/js/database.js" defer></script>
+    
+    <!-- PWA Install Manager -->
+    <script src="/js/pwa-install.js" defer></script>
+    
+    <!-- Adicionar referência ao app.js -->
+    <script src="/js/app.js" defer></script>
+</head>
+<body>
+    <script>
+        // Aguardar carregamento dos scripts de configuração
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Aguardar um pouco para garantir que os scripts foram carregados
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            if (window.AppConfig && window.Database) {
+                // Verificar autenticação e redirecionar
+                if (window.AppConfig.getDatabaseConfig() === 'firebase') {
+                    firebase.auth().onAuthStateChanged((user) => {
+                        if (user) {
+                            window.location.href = 'home.html';
+                        } else {
+                            window.location.href = 'login.html';
+                        }
+                    });
+                } else {
+                    // Para MongoDB, verificar token local
+                    const user = await window.Database.getCurrentUser();
+                    if (user) {
+                        window.location.href = 'home.html';
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                }
+            } else {
+                console.error('Configuração não carregada');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

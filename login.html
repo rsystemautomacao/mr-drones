@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MR Drones</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2ecc71">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MR Drones">
+    
+    <!-- Links para ícones - Corrigindo os caminhos -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192x192.png">
+    <link rel="shortcut icon" href="images/favicon.ico">
+    
+    <!-- Corrigindo o caminho do app.js -->
+    <script src="js/app.js" defer></script>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="rsystem-brand">
+            RSystem
+        </div>
+        <div class="login-card">
+            <h1>MR Drones</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-primary">Entrar</button>
+                </div>
+                <p id="error-message" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>© 2025 RSystem</p>
+    </footer>
+    
+    <!-- Scripts do Firebase na ordem correta -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Scripts da aplicação -->
+    <script src="js/auth.js"></script>
+</body>
+</html> 

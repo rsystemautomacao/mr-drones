@@ -1,0 +1,3 @@
+1 - Em contas a pagas, criar um icone para marcar se e quando o boleto foi pago, e só entao ele pergunta se deve sair do saldo da conta
+
+2 - 
