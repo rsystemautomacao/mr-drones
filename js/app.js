@@ -2,28 +2,26 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Registrar Service Worker
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(registration => {
-          console.log('ServiceWorker registrado com sucesso:', registration.scope);
-          
-          // Verificar se há atualizações
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nova versão disponível
-                if (confirm('Nova versão disponível! Deseja atualizar?')) {
-                  window.location.reload();
-                }
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('ServiceWorker registrado com sucesso:', registration.scope);
+        
+        // Verificar se há atualizações
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Nova versão disponível
+              if (confirm('Nova versão disponível! Deseja atualizar?')) {
+                window.location.reload();
               }
-            });
+            }
           });
-        })
-        .catch(error => {
-          console.log('Falha ao registrar o ServiceWorker:', error);
         });
-    });
+      })
+      .catch(error => {
+        console.log('Falha ao registrar o ServiceWorker:', error);
+      });
   }
 
   // Inicializar PWA Install Manager

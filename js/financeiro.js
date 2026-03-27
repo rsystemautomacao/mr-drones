@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.innerHTML = `
                 <div class="card-header" onclick="toggleExpansivel(this)">
                     <div class="header-content">
-                        <h3>${categoria} - ${mov.descricao}</h3>
+                        <h3>${escapeHtml(categoria)} - ${escapeHtml(mov.descricao)}</h3>
                         <span style="color: ${corValor}">${valorInfo}</span>
                     </div>
                     <i class="fas fa-chevron-down"></i>
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card-content" style="display: none;">
                     <div class="movimentacao-info">
                         <p><i class="fas fa-calendar"></i> ${formatarData(mov.data)}</p>
-                        <p><i class="fas fa-credit-card"></i> ${mov.formaPagamento}</p>
+                        <p><i class="fas fa-credit-card"></i> ${escapeHtml(mov.formaPagamento)}</p>
                         ${mov.numParcela ? `
                             <p><i class="fas fa-clock"></i> Parcela ${mov.numParcela}/${mov.totalParcelas}</p>
                         ` : ''}
@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <form id="form-edicao-massa">
                         <div class="form-group">
                             <label for="descricaoMassa">Descrição</label>
-                            <input type="text" id="descricaoMassa" value="${movAtual.descricao || ''}" required>
+                            <input type="text" id="descricaoMassa" value="${escapeHtml(movAtual.descricao || '')}" required>
                         </div>
                         <div class="form-group">
                             <label for="valorMassa">Valor por Parcela</label>
@@ -754,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let contasHTML = contas.map(conta => `
             <div class="conta-alerta">
-                <p><strong>${conta.descricao}</strong></p>
+                <p><strong>${escapeHtml(conta.descricao)}</strong></p>
                 <p>Valor: R$ ${formatarMoeda(conta.valor)}</p>
                 <p>Vencimento: ${formatarData(conta.data)}</p>
             </div>

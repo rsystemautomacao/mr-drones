@@ -80,14 +80,14 @@ async function carregarClientes() {
             div.className = 'cliente-item card expansivel';
             div.innerHTML = `
                 <div class="card-header" onclick="toggleExpansivel(this)">
-                    <h3>${cliente.nome}</h3>
+                    <h3>${escapeHtml(cliente.nome)}</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="card-content" style="display: none;">
                     <div class="cliente-info">
-                        <p><i class="fas fa-phone"></i> ${cliente.telefone}</p>
-                        <p><i class="fas fa-map-marker-alt"></i> ${cliente.endereco}</p>
-                        ${cliente.tamanhoTerra ? `<p><i class="fas fa-ruler-combined"></i> ${cliente.tamanhoTerra} hectares</p>` : ''}
+                        <p><i class="fas fa-phone"></i> ${escapeHtml(cliente.telefone)}</p>
+                        <p><i class="fas fa-map-marker-alt"></i> ${escapeHtml(cliente.endereco)}</p>
+                        ${cliente.tamanhoTerra ? `<p><i class="fas fa-ruler-combined"></i> ${escapeHtml(cliente.tamanhoTerra)} hectares</p>` : ''}
                     </div>
                     <div class="cliente-acoes">
                         <button onclick="editarCliente('${doc.id}')" class="btn-editar">

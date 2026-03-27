@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         div.innerHTML = `
             <div class="card-header" onclick="toggleExpansivel(this)">
                 <div>
-                    <h3>${servico.tipo} - ${servico.clienteNome}</h3>
+                    <h3>${escapeHtml(servico.tipo)} - ${escapeHtml(servico.clienteNome)}</h3>
                     ${statusDisplay}
                 </div>
                 <i class="fas fa-chevron-down"></i>
@@ -215,9 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="servico-info">
                     <p><i class="fas fa-calendar"></i> Data Prevista: ${formatarData(servico.dataPrevista)}</p>
                     ${servico.dataExecucao ? `<p><i class="fas fa-calendar-check"></i> Executado em: ${formatarData(servico.dataExecucao)}</p>` : ''}
-                    <p><i class="fas fa-ruler"></i> Área: ${servico.tamanhoArea} hectares</p>
+                    <p><i class="fas fa-ruler"></i> Área: ${escapeHtml(servico.tamanhoArea)} hectares</p>
                     <p><i class="fas fa-money-bill-wave"></i> Valor: R$ ${formatarMoeda(servico.valor)}</p>
-                    <p><i class="fas fa-credit-card"></i> Forma de Pagamento: ${servico.formaPagamento}</p>
+                    <p><i class="fas fa-credit-card"></i> Forma de Pagamento: ${escapeHtml(servico.formaPagamento)}</p>
                     ${pagamentoInfo}
                 </div>
                 <div class="servico-acoes">

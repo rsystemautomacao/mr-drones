@@ -150,11 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
             element.className = 'saida-item';
             element.innerHTML = `
                 <div class="saida-info">
-                    <h3>${formatarTipoSaida(saida.tipo)}</h3>
-                    <p><i class="fas fa-info-circle"></i> ${saida.descricao}</p>
+                    <h3>${escapeHtml(formatarTipoSaida(saida.tipo))}</h3>
+                    <p><i class="fas fa-info-circle"></i> ${escapeHtml(saida.descricao)}</p>
                     <p><i class="fas fa-calendar"></i> ${data.toLocaleDateString('pt-BR')}</p>
                     <p><i class="fas fa-money-bill-wave"></i> R$ ${saida.valor.toFixed(2)}</p>
-                    <p><i class="fas fa-credit-card"></i> ${saida.formaPagamento}</p>
+                    <p><i class="fas fa-credit-card"></i> ${escapeHtml(saida.formaPagamento)}</p>
                     ${saida.parcelado ? `
                         <p><i class="fas fa-clock"></i> Parcela ${saida.numParcela}/${saida.totalParcelas}</p>
                     ` : ''}

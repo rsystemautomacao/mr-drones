@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MR Drones</title>
+    
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2ecc71">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MR Drones">
     
@@ -17,25 +21,29 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/images/icon-192x192.png">
     <link rel="shortcut icon" href="/images/favicon.ico">
-    
-    <!-- Configuração e Database -->
-    <script src="/js/config.js" defer></script>
-    <script src="/js/database.js" defer></script>
-    
-    <!-- PWA Install Manager -->
-    <script src="/js/pwa-install.js" defer></script>
-    
-    <!-- Adicionar referência ao app.js -->
-    <script src="/js/app.js" defer></script>
 </head>
 <body>
     <script>
-        // Aguardar carregamento dos scripts de configuração
+        // Aguardar DOM estar pronto
         document.addEventListener('DOMContentLoaded', async () => {
-            // Aguardar um pouco para garantir que os scripts foram carregados
-            await new Promise(resolve => setTimeout(resolve, 200));
+            console.log('🚀 Iniciando carregamento dos scripts...');
             
+            // Carregar scripts na ordem correta
+            await loadScript('/js/config.js');
+            await loadScript('/js/database.js');
+            await loadScript('/js/pwa-install.js');
+            await loadScript('/js/auth.js');
+            await loadScript('/js/app.js');
+            
+            console.log('✅ Todos os scripts carregados');
+            
+            // Aguardar um pouco para garantir que tudo foi inicializado
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Verificar se tudo foi carregado corretamente
             if (window.AppConfig && window.Database) {
+                console.log('✅ Configuração e Database carregados');
+                
                 // Verificar autenticação e redirecionar
                 if (window.AppConfig.getDatabaseConfig() === 'firebase') {
                     firebase.auth().onAuthStateChanged((user) => {
@@ -55,10 +63,29 @@
                     }
                 }
             } else {
-                console.error('Configuração não carregada');
+                console.error('❌ Configuração não carregada corretamente');
+                console.log('AppConfig:', !!window.AppConfig);
+                console.log('Database:', !!window.Database);
                 window.location.href = 'login.html';
             }
         });
+
+        // Função para carregar scripts dinamicamente
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    console.log(`✅ Script carregado: ${src}`);
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error(`❌ Erro ao carregar script: ${src}`);
+                    reject();
+                };
+                document.head.appendChild(script);
+            });
+        }
     </script>
 </body>
 </html>

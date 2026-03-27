@@ -1,4 +1,4 @@
-// No início do arquivo
+// Auth.js Corrigido - MR Drones
 console.log('Inicializando sistema de autenticação...');
 
 // Aguardar inicialização do Database
@@ -6,15 +6,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Aguardar um pouco para garantir que o Database foi inicializado
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    if (!window.Database) {
-        console.error('Database não foi inicializado');
-        return;
-    }
-
     console.log('Auth.js carregado');
     
     // Verificar estado da autenticação
-    if (window.AppConfig.getDatabaseConfig() === 'firebase') {
+    if (window.AppConfig && window.AppConfig.getDatabaseConfig() === 'firebase') {
         firebase.auth().onAuthStateChanged((user) => {
             console.log('Estado de autenticação:', user ? 'Logado' : 'Não logado');
             
@@ -30,14 +25,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         // Para MongoDB, verificar token local
         const checkAuth = async () => {
-            const user = await window.Database.getCurrentUser();
-            const currentPath = window.location.pathname;
-            const isLoginPage = currentPath.includes('login.html');
-            
-            if (!user && !isLoginPage) {
-                window.location.href = 'login.html';
-            } else if (user && isLoginPage) {
-                window.location.href = 'home.html';
+            if (window.Database) {
+                const user = await window.Database.getCurrentUser();
+                const currentPath = window.location.pathname;
+                const isLoginPage = currentPath.includes('login.html');
+                
+                if (!user && !isLoginPage) {
+                    window.location.href = 'login.html';
+                } else if (user && isLoginPage) {
+                    window.location.href = 'home.html';
+                }
             }
         };
         
@@ -47,6 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Formulário de login
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
+        console.log('Formulário de login encontrado');
+        
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -55,16 +54,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             const errorMessage = document.getElementById('error-message');
             const submitButton = loginForm.querySelector('button[type="submit"]');
             
+            console.log('Tentando login com:', email);
+            
             try {
                 // Desabilitar botão e mostrar loading
                 submitButton.disabled = true;
-                const loadingToast = showToast('Conectando...', 'loading');
+                submitButton.textContent = 'Conectando...';
                 
-                await window.Database.signIn(email, password);
+                // Limpar mensagem de erro anterior
+                if (errorMessage) {
+                    errorMessage.textContent = '';
+                }
                 
-                // Remover toast de loading e mostrar sucesso
-                loadingToast.remove();
-                showToast('Login realizado com sucesso!', 'success');
+                // Tentar login direto com Firebase se Database não estiver disponível
+                let result;
+                if (window.Database) {
+                    result = await window.Database.signIn(email, password);
+                } else {
+                    // Fallback para Firebase direto
+                    result = await firebase.auth().signInWithEmailAndPassword(email, password);
+                }
+                
+                console.log('Login realizado com sucesso:', result);
+                
+                // Mostrar sucesso
+                submitButton.textContent = 'Sucesso!';
+                submitButton.style.background = '#28a745';
                 
                 // Redirecionar após um pequeno delay
                 setTimeout(() => {
@@ -73,13 +88,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
             } catch (error) {
                 console.error('Erro no login:', error);
-                errorMessage.textContent = 'Email ou senha inválidos';
-                submitButton.disabled = false;
                 
-                // Remover loading e mostrar erro
-                document.querySelector('.toast')?.remove();
+                // Reabilitar botão
+                submitButton.disabled = false;
+                submitButton.textContent = 'Entrar';
+                submitButton.style.background = '';
+                
+                // Mostrar erro
+                let errorText = 'Email ou senha inválidos';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorText = 'Usuário não encontrado';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorText = 'Senha incorreta';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorText = 'Email inválido';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorText = 'Muitas tentativas. Tente novamente mais tarde';
+                }
+                
+                if (errorMessage) {
+                    errorMessage.textContent = errorText;
+                }
+                
+                console.log('Erro exibido:', errorText);
             }
         });
+    } else {
+        console.log('Formulário de login não encontrado');
     }
 });
 
@@ -91,7 +127,11 @@ window.logout = async () => {
             // Mostrar toast de loading
             const loadingToast = showToast('Finalizando sessão...', 'loading');
             
-            await window.Database.signOut();
+            if (window.Database) {
+                await window.Database.signOut();
+            } else {
+                await firebase.auth().signOut();
+            }
             
             // Remover toast de loading e mostrar sucesso
             loadingToast.remove();
@@ -114,58 +154,4 @@ window.logout = async () => {
     }
 };
 
-// Fechar o DOMContentLoaded
-});
-
-// Adicionar função para mostrar toast
-function showToast(message, type = 'default') {
-    // Criar container se não existir
-    let container = document.querySelector('.toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-
-    // Criar toast
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    // Conteúdo baseado no tipo
-    if (type === 'loading') {
-        toast.innerHTML = `
-            <div class="spinner"></div>
-            <span>${message}</span>
-        `;
-    } else if (type === 'success') {
-        toast.innerHTML = `
-            <i class="fas fa-check-circle"></i>
-            <span>${message}</span>
-        `;
-    } else if (type === 'error') {
-        toast.innerHTML = `
-            <i class="fas fa-exclamation-circle"></i>
-            <span>${message}</span>
-        `;
-        toast.style.background = '#f44336'; // Vermelho para erro
-        toast.style.color = 'white';
-    }
-
-    // Adicionar ao container
-    container.appendChild(toast);
-
-    // Remover após delay (exceto se for loading)
-    if (type !== 'loading') {
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease-out forwards';
-            setTimeout(() => {
-                container.removeChild(toast);
-                if (container.children.length === 0) {
-                    document.body.removeChild(container);
-                }
-            }, 300);
-        }, 2000);
-    }
-
-    return toast; // Retornar para poder remover depois
-} 
+// showToast é carregado via utils.js (window.showToast)

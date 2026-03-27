@@ -1,18 +1,29 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // Verificar se o Firebase está inicializado
-    if (!window.db) {
-        console.error('Firebase não inicializado');
-        return;
+// Função para aguardar Database estar pronto
+async function waitForDatabase() {
+    // Aguardar Database existir (caso o script ainda esteja carregando)
+    let attempts = 0;
+    while (!window.Database && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
     }
 
-    // Função para formatar valores monetários
-    function formatarMoeda(valor) {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(valor);
+    if (!window.Database) {
+        throw new Error('Database não foi carregado');
     }
+
+    // Aguardar inicialização completa via Promise
+    await window.Database.ready;
+
+    console.log('Home: Database está pronto');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Aguardar Database estar completamente inicializado
+    await waitForDatabase();
+    
+    console.log('Home: Database pronto, iniciando carregamento...');
+
+    // Usa formatarMoeda e formatarData do utils.js (carregado globalmente)
 
     async function carregarResumoFinanceiro() {
         try {
@@ -64,36 +75,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             const dataInicioStr = dataInicio.toISOString().split('T')[0];
             const dataFimStr = dataFim.toISOString().split('T')[0];
 
-            // Carregar saldo atual
-            const saldoDoc = await db.collection('financeiro').doc('saldo').get();
-            const saldoAtual = saldoDoc.exists ? saldoDoc.data().valor : 0;
+            // Carregar saldo atual via adapter
+            const saldoAtual = await window.Database.getSaldoFinanceiro();
 
-            // Buscar entradas do período
-            const entradasSnapshot = await db.collection('movimentacoes')
-                .where('tipo', '==', 'entrada')
-                .where('data', '>=', dataInicioStr)
-                .where('data', '<=', dataFimStr)
-                .get();
+            // Buscar entradas do período via adapter
+            const entradas = await window.Database.getMovimentacoesPorPeriodo('entrada', dataInicioStr, dataFimStr);
 
             let totalEntradas = 0;
             let numServicos = 0;
-            entradasSnapshot.forEach(doc => {
-                const entrada = doc.data();
+            entradas.forEach(entrada => {
                 totalEntradas += parseFloat(entrada.valor) || 0;
                 if (entrada.categoria === 'servico') numServicos++;
             });
 
-            // Buscar saídas do período
-            const saidasSnapshot = await db.collection('movimentacoes')
-                .where('tipo', '==', 'saida')
-                .where('data', '>=', dataInicioStr)
-                .where('data', '<=', dataFimStr)
-                .get();
+            // Buscar saídas do período via adapter
+            const saidas = await window.Database.getMovimentacoesPorPeriodo('saida', dataInicioStr, dataFimStr);
 
             let totalSaidas = 0;
             let numDespesas = 0;
-            saidasSnapshot.forEach(doc => {
-                const saida = doc.data();
+            saidas.forEach(saida => {
                 totalSaidas += parseFloat(saida.valor) || 0;
                 numDespesas++;
             });
@@ -123,28 +123,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             hoje.setHours(0, 0, 0, 0);
             const dataHoje = hoje.toISOString().split('T')[0];
 
-            const servicosSnapshot = await db.collection('servicos')
-                .where('status', '==', 'pendente')
-                .where('data', '>=', dataHoje)
-                .orderBy('data', 'asc')
-                .get();
+            const servicos = await window.Database.getServicosPorStatusEData('pendente', dataHoje, 'data', 'asc');
 
             const container = document.getElementById('proximos-servicos');
-            
-            if (servicosSnapshot.empty) {
+
+            if (servicos.length === 0) {
                 container.innerHTML = '<p class="texto-info">Nenhum serviço previsto</p>';
                 return;
             }
 
             container.innerHTML = '';
-            servicosSnapshot.forEach(doc => {
-                const servico = doc.data();
+            servicos.forEach(servico => {
                 const div = document.createElement('div');
                 div.className = 'servico-item card expansivel';
                 div.innerHTML = `
                     <div class="card-header" onclick="toggleExpansivel(this)">
                         <div class="header-content">
-                            <h3>${servico.tipo} - ${servico.clienteNome}</h3>
+                            <h3>${escapeHtml(servico.tipo)} - ${escapeHtml(servico.clienteNome)}</h3>
                             <span>R$ ${formatarMoeda(servico.valor)}</span>
                         </div>
                         <i class="fas fa-chevron-down"></i>
@@ -152,9 +147,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="card-content" style="display: none;">
                         <div class="servico-info">
                             <p><i class="fas fa-calendar"></i> Data Prevista: ${formatarData(servico.data)}</p>
-                            <p><i class="fas fa-ruler"></i> Área: ${servico.tamanhoArea} hectares</p>
+                            <p><i class="fas fa-ruler"></i> Área: ${escapeHtml(servico.tamanhoArea)} hectares</p>
                             <p><i class="fas fa-money-bill-wave"></i> Valor: R$ ${formatarMoeda(servico.valor)}</p>
-                            <p><i class="fas fa-credit-card"></i> Forma de Pagamento: ${servico.formaPagamento}</p>
+                            <p><i class="fas fa-credit-card"></i> Forma de Pagamento: ${escapeHtml(servico.formaPagamento)}</p>
                         </div>
                     </div>
                 `;
@@ -174,27 +169,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             let numPendentes = 0;
             const hoje = new Date().toISOString().split('T')[0];
 
-            // Buscar serviços pendentes
-            const servicosPendentesSnapshot = await db.collection('servicos')
-                .where('status', '==', 'pendente')
-                .where('data', '>=', hoje)
-                .get();
+            // Buscar serviços pendentes via adapter
+            const servicosPendentes = await window.Database.getServicosPorStatusEData('pendente', hoje);
 
-            // Somar valores dos serviços pendentes
-            servicosPendentesSnapshot.forEach(doc => {
-                const servico = doc.data();
+            servicosPendentes.forEach(servico => {
                 totalPrevistos += parseFloat(servico.valor) || 0;
                 numPendentes++;
             });
 
-            // Buscar serviços realizados com pagamento pendente
-            const servicosRealizadosSnapshot = await db.collection('servicos')
-                .where('status', '==', 'realizado')
-                .get();
+            // Buscar serviços realizados com pagamento pendente via adapter
+            const servicosRealizados = await window.Database.getServicosPorStatus('realizado');
 
-            // Verificar pagamentos pendentes dos serviços realizados
-            servicosRealizadosSnapshot.forEach(doc => {
-                const servico = doc.data();
+            servicosRealizados.forEach(servico => {
                 if (servico.pagamento) {
                     const { status, valorTotal, valorPago = 0 } = servico.pagamento;
                     if (status === 'pendente' || status === 'parcial') {

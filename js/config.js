@@ -62,7 +62,8 @@ class AppConfig {
                 database: 'mongodb',
                 firebase: null,
                 mongodb: {
-                    uri: "mongodb+srv://mr_drones_user:mr_drones_pass@cluster0.mongodb.net/mr_drones?retryWrites=true&w=majority",
+                    // Credenciais MongoDB devem ser configuradas via variáveis de ambiente no servidor (Vercel)
+                    // A conexão ao MongoDB é feita pelo backend/API, nunca pelo cliente
                     database: "mr_drones"
                 },
                 app: {
@@ -112,9 +113,16 @@ class AppConfig {
 // Criar instância global
 window.AppConfig = new AppConfig();
 
-// Log da configuração carregada
-console.log('Configuração carregada:', {
-    environment: window.AppConfig.getEnvironment(),
-    database: window.AppConfig.getDatabaseConfig(),
-    app: window.AppConfig.getAppConfig()
-});
+// Silenciar console.log em produção (manter console.error e console.warn)
+if (window.AppConfig.isProduction()) {
+    const noop = () => {};
+    console.log = noop;
+    console.debug = noop;
+    console.info = noop;
+} else {
+    console.log('Configuração carregada:', {
+        environment: window.AppConfig.getEnvironment(),
+        database: window.AppConfig.getDatabaseConfig(),
+        app: window.AppConfig.getAppConfig()
+    });
+}

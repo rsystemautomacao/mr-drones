@@ -334,10 +334,12 @@ class PWAInstallManager {
     }
 }
 
-// Inicializar quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', () => {
-    window.PWAInstallManager = new PWAInstallManager();
-});
+// Inicializar imediatamente
+window.PWAInstallManager = new PWAInstallManager();
 
-// Exportar para uso global
-window.PWAInstallManager = window.PWAInstallManager;
+// Também inicializar quando o DOM estiver carregado (para garantir)
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.PWAInstallManager) {
+        window.PWAInstallManager = new PWAInstallManager();
+    }
+});

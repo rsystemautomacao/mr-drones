@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="servico-item card expansivel">
                                 <div class="card-header" onclick="MRDrones.toggleExpansivel(this)">
                                     <div class="header-content">
-                                        <h3>${servico.tipo} - ${servico.clienteNome}</h3>
+                                        <h3>${escapeHtml(servico.tipo)} - ${escapeHtml(servico.clienteNome)}</h3>
                                         <span>R$ ${formatarMoeda(servico.valor)}</span>
                                     </div>
                                     <i class="fas fa-chevron-down"></i>
@@ -158,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                         ${servico.dataExecucao ? 
                                             `<p><i class="fas fa-calendar-check"></i> Executado em: ${formatarData(servico.dataExecucao)}</p>` 
                                             : ''}
-                                        <p><i class="fas fa-ruler"></i> Área: ${servico.tamanhoArea} hectares</p>
+                                        <p><i class="fas fa-ruler"></i> Área: ${escapeHtml(servico.tamanhoArea)} hectares</p>
                                         <p><i class="fas fa-money-bill-wave"></i> Valor: R$ ${formatarMoeda(servico.valor)}</p>
-                                        <p><i class="fas fa-credit-card"></i> Forma de Pagamento: ${servico.formaPagamento}</p>
+                                        <p><i class="fas fa-credit-card"></i> Forma de Pagamento: ${escapeHtml(servico.formaPagamento)}</p>
                                         ${servico.pagamento ? `
                                             <p><i class="fas fa-info-circle"></i> Status do Pagamento: ${servico.pagamento.status}</p>
                                             ${servico.pagamento.valorPago ? 
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="servico-item card expansivel">
                                 <div class="card-header" onclick="MRDrones.toggleExpansivel(this)">
                                     <div class="header-content">
-                                        <h3>${saida.categoria} - ${saida.descricao}</h3>
+                                        <h3>${escapeHtml(saida.categoria)} - ${escapeHtml(saida.descricao)}</h3>
                                         <span>R$ ${formatarMoeda(saida.valor)}</span>
                                     </div>
                                     <i class="fas fa-chevron-down"></i>
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="servico-info">
                                         <p><i class="fas fa-calendar"></i> ${formatarData(saida.data)}</p>
                                         <p><i class="fas fa-money-bill-wave"></i> R$ ${formatarMoeda(saida.valor)}</p>
-                                        <p><i class="fas fa-credit-card"></i> ${saida.formaPagamento}</p>
+                                        <p><i class="fas fa-credit-card"></i> ${escapeHtml(saida.formaPagamento)}</p>
                                         ${saida.parcelado ? `
                                             <p><i class="fas fa-clock"></i> Parcela ${saida.numParcela}/${saida.totalParcelas}</p>
                                         ` : ''}

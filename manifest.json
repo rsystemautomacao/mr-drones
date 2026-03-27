@@ -11,20 +11,6 @@
   "lang": "pt-BR",
   "dir": "ltr",
   "categories": ["business", "productivity", "utilities"],
-  "screenshots": [
-    {
-      "src": "./images/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "./images/screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
   "icons": [
     {
       "src": "./images/icon-192x192.png",
